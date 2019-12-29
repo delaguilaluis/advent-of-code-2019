@@ -80,6 +80,16 @@
       ((null? layers) accumulator)
       (else (reduce (cdr layers) (joinLayers accumulator (car layers)))))))
 
+(define printLayer
+  (lambda (layer columnCount pos aux)
+    (cond
+      ((null? layer) #t)
+      ((= 0 (remainder pos columnCount)) (
+        (print (string-append aux (number->string(car layer))))
+        (printLayer (cdr layer) columnCount (add1 pos) "")))
+      (else
+        (printLayer (cdr layer) columnCount (add1 pos) (string-append aux (number->string(car layer))))))))
+
 (define (main args)
   (define layerSize (* rowCount columnCount))
   (define layers (getLayers layerSize))
@@ -93,7 +103,10 @@
   (define result (*
     (countOccurrences layerOfInterest 1 0)
     (countOccurrences layerOfInterest 2 0)))
-  (print result)
+  (print "Part 1: " result)
+  (print "\nPart 2: ")
 
   (define merged (reduce layers (car layers)))
-  (print merged))
+
+  (printLayer merged columnCount 1 "")
+)
