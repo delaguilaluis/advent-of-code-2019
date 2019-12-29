@@ -61,14 +61,30 @@
 ; get the min value out of a list of numbers
 (define meen
   (lambda (lat minVal)
-    (cond 
+    (cond
       ((null? lat) minVal)
       ((< (car lat) minVal) (meen (cdr lat) (car lat)))
       (else (meen (cdr lat) minVal)))))
 
+(define joinLayers
+  (lambda (frontLayer backLayer)
+    (cond
+      ((null? frontLayer) (quote ()))
+      ; if front layer pixel is transparent (2); use back layer pixel instead
+      ((= 2 (car frontLayer)) (cons (car backLayer) (joinLayers (cdr frontLayer) (cdr backLayer))))
+      (else (cons (car frontLayer) (joinLayers (cdr frontLayer) (cdr backLayer)))))))
+
+(define reduce
+  (lambda (layers accumulator)
+    (cond
+      ((null? layers) accumulator)
+      (else (reduce (cdr layers) (joinLayers accumulator (car layers)))))))
+
 (define (main args)
   (define layerSize (* rowCount columnCount))
-  (define layers (getLayers layerSize)) 
+  (define layers (getLayers layerSize))
+  (file-close infn)
+
   (define zerosOnLayers (getZerosOnLayers layers))
 
   ; start assuming the first value of the list is the minimum
@@ -78,4 +94,6 @@
     (countOccurrences layerOfInterest 1 0)
     (countOccurrences layerOfInterest 2 0)))
   (print result)
-  (file-close infn))
+
+  (define merged (reduce layers (car layers)))
+  (print merged))
