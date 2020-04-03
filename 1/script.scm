@@ -34,8 +34,17 @@
     (else
       (- quotient (/ rmdr y)))))
 
+(define (forgiving-substraction x y)
+  (cond ((> y x) 0)
+    (else (- x y))))
+
+(define (compute-fuel-b mass fuel)
+  (define fuel-for-mass (forgiving-substraction (floored-division mass 3) 2))
+  (cond ((<= mass 0) fuel)
+    (else (compute-fuel-b fuel-for-mass (+ fuel fuel-for-mass)))))
+
 (define (compute-fuel mass)
-  (- (floored-division mass 3) 2))
+  (compute-fuel-b mass 0))
 
 (define (compute-all list)
   (cond
